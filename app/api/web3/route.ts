@@ -15,8 +15,8 @@ export async function POST(request: NextRequest) {
     };
     const [chainId, balance] = await Promise.all([rpc("eth_chainId", []), rpc("eth_getBalance", [address, "latest"])]);
     const wei = BigInt(balance);
-    const whole = wei / 1000000000000000000n;
-    const fraction = (wei % 1000000000000000000n).toString().padStart(18, "0").slice(0, 6);
+    const whole = wei / BigInt("1000000000000000000");
+    const fraction = (wei % BigInt("1000000000000000000")).toString().padStart(18, "0").slice(0, 6);
     return NextResponse.json({ chainId: Number.parseInt(chainId, 16), balanceEth: `${whole}.${fraction}` });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request" }, { status: 400 }); }
 }

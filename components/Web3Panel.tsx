@@ -1,29 +1,12 @@
 "use client";
-
 import { useState } from "react";
-
+type EthereumProvider = { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> };
+declare global { interface Window { ethereum?: EthereumProvider } }
+const ADDRESS = /^0x[a-fA-F0-9]{40}$/;
 export default function Web3Panel() {
-  const [rpcUrl, setRpcUrl] = useState("https://cloudflare-eth.com");
-  const [address, setAddress] = useState("");
-  const [result, setResult] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  async function inspect() {
-    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
-      setResult("Enter a valid EVM address.");
-      return;
-    }
-    setBusy(true);
-    setResult("");
-    try {
-      const response = await fetch("/api/web3", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rpcUrl, address }) });
-      const data = await response.json();
-      setResult(data.error ?? `Chain ID: ${data.chainId}\nBalance: ${data.balanceEth} ETH`);
-    } catch {
-      setResult("Unable to reach the read-only EVM inspector.");
-    } finally { setBusy(false); }
-  }
-
-  return <section className="panel"><div className="panel-intro"><span className="eyebrow green">READ-ONLY EVM LAB</span><h2>Web3 workspace</h2><p>Inspect public chain data safely. Signing and transactions stay disabled until explicitly configured.</p></div><div className="scroll-area"><div className="web3-card"><label>JSON-RPC endpoint<input value={rpcUrl} onChange={(event) => setRpcUrl(event.target.value)} /></label><label>Wallet address<input inputMode="text" placeholder="0x..." value={address} onChange={(event) => setAddress(event.target.value)} /></label><button className="composer-button green-button" onClick={inspect} disabled={busy}>{busy ? "Inspecting..." : "Inspect wallet"}</button>{result && <pre className="web3-result">{result}</pre>}</div></div></section>;
+  const [rpcUrl, setRpcUrl] = useState("https://cloudflare-eth.com"); const [address, setAddress] = useState(""); const [to, setTo] = useState(""); const [value, setValue] = useState("0"); const [data, setData] = useState(""); const [result, setResult] = useState(""); const [busy, setBusy] = useState(false); const [connected, setConnected] = useState(false);
+  async function connect() { if (!window.ethereum) { setResult("Install or unlock a browser wallet such as MetaMask to continue."); return; } try { const accounts = await window.ethereum.request({ method: "eth_requestAccounts" }) as string[]; setAddress(accounts[0] ?? ""); setConnected(Boolean(accounts[0])); setResult(accounts[0] ? `Connected ${accounts[0]}` : "No wallet account was returned."); } catch (error) { setResult(`Wallet connection rejected: ${String(error)}`); } }
+  async function inspect() { if (!ADDRESS.test(address)) { setResult("Connect a valid EVM wallet address first."); return; } setBusy(true); setResult(""); try { const response = await fetch("/api/web3", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rpcUrl, address }) }); const responseData = await response.json(); setResult(responseData.error ?? `Chain ID: ${responseData.chainId}\nBalance: ${responseData.balanceEth} ETH`); } catch { setResult("Unable to reach the EVM inspector."); } finally { setBusy(false); } }
+  async function sendTransaction() { if (!window.ethereum) { setResult("A browser wallet is required for signing."); return; } if (!ADDRESS.test(to)) { setResult("Enter a valid recipient address."); return; } setBusy(true); setResult("Review the transaction in your wallet…"); try { const hash = await window.ethereum.request({ method: "eth_sendTransaction", params: [{ from: address, to, value: `0x${(() => { const [whole, fraction = ""] = value.split("."); const wei = BigInt(whole || "0") * BigInt("1000000000000000000") + BigInt((fraction + "000000000000000000").slice(0, 18)); return wei.toString(16); })()}`, ...(data.trim() ? { data: data.trim() } : {}) }] }); setResult(`Broadcast successfully.\nTransaction hash: ${String(hash)}\n\nThe wallet approved and signed this transaction; the app never receives your private key.`); } catch (error) { setResult(`Transaction not sent: ${String(error)}`); } finally { setBusy(false); } }
+  return <section className="panel"><div className="panel-intro"><span className="eyebrow green">NON-CUSTODIAL MAINNET WORKSPACE</span><h2>Web3 workspace</h2><p>Connect an injected wallet, inspect the account, then review and approve each transaction in your wallet. Private keys never leave the wallet.</p></div><div className="scroll-area"><div className="web3-card"><div className="wallet-status"><span className={connected ? "status-dot" : "status-dot status-dot-muted"} />{connected ? `Connected · ${address.slice(0, 6)}…${address.slice(-4)}` : "Wallet not connected"}<button className="ghost-button" onClick={connect}>{connected ? "Reconnect" : "Connect wallet"}</button></div><label>JSON-RPC endpoint<input value={rpcUrl} onChange={(event) => setRpcUrl(event.target.value)} /></label><label>Wallet address<input inputMode="text" placeholder="0x..." value={address} onChange={(event) => setAddress(event.target.value)} /></label><button className="composer-button green-button" onClick={inspect} disabled={busy}>{busy ? "Inspecting..." : "Inspect wallet"}</button><div className="transaction-box"><div><span className="eyebrow green">TRANSACTION BUILDER</span><h3>Prepare a transfer</h3></div><label>Recipient<input inputMode="text" placeholder="0x..." value={to} onChange={(event) => setTo(event.target.value)} /></label><label>ETH amount<input inputMode="decimal" value={value} onChange={(event) => setValue(event.target.value)} /></label><label>Optional calldata<input placeholder="0x" value={data} onChange={(event) => setData(event.target.value)} /></label><button className="composer-button green-button" onClick={sendTransaction} disabled={busy || !connected}>Review & sign in wallet</button><small className="security-note">The agent may prepare values, but it cannot bypass this user approval step or access signing keys.</small></div>{result && <pre className="web3-result">{result}</pre>}</div></div></section>;
 }
-
