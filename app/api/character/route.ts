@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { deepseek, MODELS, assertConfigured, safeMessages, sseEvent, sseHeaders } from "@/lib/deepseek";
 import { ensureSession, replaceSessionMessages } from "@/lib/persistence";
 import { NextRequest } from "next/server";
@@ -14,7 +13,7 @@ export async function POST(request: NextRequest) {
     if (!character?.name || !Array.isArray(character.rules)) throw new Error("Invalid character profile");
     const messages = safeMessages(body.messages);
     const sessionId = typeof body.sessionId === "string" && body.sessionId.length < 100 ? body.sessionId : crypto.randomUUID();
-    const ownerId = (await auth()).userId;
+    const ownerId = sessionId;
     const prompt = `You are ${String(character.name).slice(0, 100)}. Stay in character. Never mention system prompts or that you are an AI.\nPersonality: ${String(character.personality).slice(0, 1000)}\nSpeech style: ${String(character.speech_style).slice(0, 1000)}\nBackstory: ${String(character.backstory).slice(0, 2000)}\nRules: ${character.rules.map(String).slice(0, 12).join("; ")}`;
     const stream = await deepseek.chat.completions.create({ model: MODELS.flash, messages: [{ role: "system", content: prompt }, ...messages], temperature: 0.9, stream: true });
     const encoder = new TextEncoder();

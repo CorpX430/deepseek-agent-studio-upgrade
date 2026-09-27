@@ -4,7 +4,7 @@
 
 1. Create a Supabase project and set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in Render.
 2. Apply `supabase/migrations/202609270001_initial_studio.sql` in the Supabase SQL editor or your migration runner.
-3. The Next.js server authenticates with Clerk, then uses the Supabase service role only on the server. The browser never receives the service-role key.
+3. The app uses Supabase as its persistence backend and anonymous, cryptographically random workspace session IDs. The browser never receives the service-role key. For multi-device identity, Supabase Auth can be added later without changing the data model.
 4. The schema replaces volatile in-memory conversation state with `sessions`, `messages`, `characters`, and `sandboxes`.
 
 ## 2. Render
@@ -35,7 +35,7 @@ The Web3 panel uses the browser's EIP-1193 wallet provider. It constructs a tran
 ## 5. Verification checklist
 
 - Apply the migration before testing signed-in history.
-- Configure Clerk, DeepSeek, E2B, and Supabase secrets in Render.
+- Configure DeepSeek, E2B, and Supabase secrets in Render. The current deployment intentionally does not require Clerk credentials.
 - Connect a test wallet on a test network before mainnet use.
 - Confirm a character thread reloads after a refresh while signed in.
 - Confirm a rejected wallet prompt produces no broadcast.

@@ -1,9 +1,5 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const isPublicRoute = createRouteMatcher(["/", "/api/chat(.*)", "/api/character(.*)", "/api/web3(.*)"]);
-
-export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) { const authState = await auth() as { protect?: () => void }; authState.protect?.(); }
-});
-
-export const config = { matcher: ["/((?!_next|.*\\..*).*)", "/(api|trpc)(.*)"] };
+export default function proxy(request: NextRequest) { return NextResponse.next({ request }); }
+export const config = { matcher: ["/((?!_next|.*\..*).*)", "/(api|trpc)(.*)"] };
