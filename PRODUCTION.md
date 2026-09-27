@@ -28,9 +28,11 @@ The included `render.yaml` builds and runs the Next.js app with automatic deploy
 
 Keep connector credentials in the connected-app secret store or Render environment variables; never commit them.
 
-## 4. Mainnet transaction flow
+## 4. BNB mainnet transaction flow
 
-The Web3 panel uses the browser's EIP-1193 wallet provider. It constructs a transaction, calls `eth_sendTransaction`, and lets the wallet display the exact recipient, value, calldata, gas, and network for user approval. The server does not hold private keys, and the agent cannot approve or broadcast without the user's wallet confirmation. This is the intended secure production boundary for a non-custodial app.
+The Web3 panel targets BNB Smart Chain by default (`chainId 56`, native asset `BNB`) using `https://bsc-dataseed.binance.org`. It switches or adds the BNB network in the user's injected wallet, constructs a transaction, calls `eth_sendTransaction`, and lets the wallet display the exact recipient, value, calldata, gas, and network for user approval. The server does not hold private keys, and the agent cannot approve or broadcast without the user's wallet confirmation.
+
+Cloudflare does not provide a universal public BNB RPC endpoint. If you create an authenticated Cloudflare Web3 Gateway or Worker proxy for BSC, set its HTTPS URL as `NEXT_PUBLIC_BNB_RPC_URL` in Render. Do not put a Cloudflare token in the browser bundle; keep gateway authentication at the Worker/proxy layer. The endpoint must return BNB Smart Chain chain ID `56`.
 
 ## 5. Verification checklist
 

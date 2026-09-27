@@ -14,9 +14,11 @@ export async function POST(request: NextRequest) {
       return payload.result as string;
     };
     const [chainId, balance] = await Promise.all([rpc("eth_chainId", []), rpc("eth_getBalance", [address, "latest"])]);
+    const numericChainId = Number.parseInt(chainId, 16);
+    if (numericChainId !== 56) return NextResponse.json({ error: `This endpoint is chain ${numericChainId}; use a BNB Smart Chain RPC (chain ID 56).` }, { status: 400 });
     const wei = BigInt(balance);
     const whole = wei / BigInt("1000000000000000000");
     const fraction = (wei % BigInt("1000000000000000000")).toString().padStart(18, "0").slice(0, 6);
-    return NextResponse.json({ chainId: Number.parseInt(chainId, 16), balanceEth: `${whole}.${fraction}` });
+    return NextResponse.json({ chainId: numericChainId, chainName: "BNB Smart Chain", balanceNative: `${whole}.${fraction}` });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request" }, { status: 400 }); }
 }
