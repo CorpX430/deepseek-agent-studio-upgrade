@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: "Files must be 10 MB or smaller" }, { status: 413 });
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-").slice(0, 120) || "upload";
   const blob = await put(`workspaces/${userId}/${crypto.randomUUID()}-${safeName}`, file, { access: "private", addRandomSuffix: false });
-  return NextResponse.json({ pathname: blob.pathname, size: blob.size, uploadedAt: blob.uploadedAt }, { status: 201 });
+  return NextResponse.json({ pathname: blob.pathname, size: file.size, uploadedAt: new Date().toISOString() }, { status: 201 });
 }
 
 export async function DELETE(request: NextRequest) {
