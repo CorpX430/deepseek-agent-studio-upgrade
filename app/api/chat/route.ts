@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
           for await (const chunk of stream) {
             const delta = chunk.choices[0]?.delta;
             if (delta?.content) controller.enqueue(encoder.encode(sseEvent({ type: "content", content: delta.content })));
-            if (delta?.reasoning_content) controller.enqueue(encoder.encode(sseEvent({ type: "reasoning", content: delta.reasoning_content })));
+            const reasoningContent = (delta as typeof delta & { reasoning_content?: string })?.reasoning_content;
+            if (reasoningContent) controller.enqueue(encoder.encode(sseEvent({ type: "reasoning", content: reasoningContent })));
           }
           controller.enqueue(encoder.encode(sseEvent({ type: "done" })));
         } catch (error) { controller.enqueue(encoder.encode(sseEvent({ type: "error", error: String(error) }))); }
