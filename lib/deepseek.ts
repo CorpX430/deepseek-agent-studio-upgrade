@@ -1,11 +1,10 @@
 import OpenAI from "openai";
 
-if (!process.env.DEEPSEEK_API_KEY) {
-  console.warn("DEEPSEEK_API_KEY is not configured.");
-}
+if (!process.env.DEEPSEEK_API_KEY) console.warn("DEEPSEEK_API_KEY is not configured.");
 
 export const deepseek = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY,
+  // Route modules are evaluated during `next build`; requests still fail closed below.
+  apiKey: process.env.DEEPSEEK_API_KEY ?? "build-placeholder",
   baseURL: "https://api.deepseek.com",
 });
 
