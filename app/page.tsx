@@ -4,9 +4,11 @@ import ModeSwitcher from "@/components/ModeSwitcher";
 import ChatPanel from "@/components/ChatPanel";
 import AgentPanel from "@/components/AgentPanel";
 import CharacterPanel from "@/components/CharacterPanel";
+import Web3Panel from "@/components/Web3Panel";
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Home() {
-  const [mode, setMode] = useState<"chat" | "agent" | "character">("chat");
+  const [mode, setMode] = useState<"chat" | "agent" | "character" | "web3">("chat");
   const [sessionId] = useState(() => crypto.randomUUID());
-  return <main className="studio-shell"><header className="studio-header"><div className="brand"><div className="brand-mark">DS</div><div><h1>DeepSeek <span>Agent Studio</span></h1><p>Build, chat, and explore in one focused workspace</p></div></div><ModeSwitcher mode={mode} setMode={setMode} /></header><section className="studio-content">{mode === "chat" && <ChatPanel />}{mode === "agent" && <AgentPanel sessionId={sessionId} />}{mode === "character" && <CharacterPanel />}</section></main>;
+  return <main className="studio-shell"><header className="studio-header"><div className="brand"><div className="brand-mark">DS</div><div><h1>DeepSeek <span>Agent Studio</span></h1><p>DeepSeek models · secure agent cloud · read-only EVM lab</p></div></div><div className="auth-actions"><SignedOut><SignInButton mode="modal"><button className="auth-button">Sign in</button></SignInButton><SignUpButton mode="modal"><button className="auth-button auth-button-primary">Create account</button></SignUpButton></SignedOut><SignedIn><UserButton /></SignedIn></div><ModeSwitcher mode={mode} setMode={setMode as (mode: "chat" | "agent" | "character") => void} /></header><section className="studio-content">{mode === "chat" && <ChatPanel />}{mode === "agent" && <AgentPanel sessionId={sessionId} />}{mode === "character" && <CharacterPanel />}{mode === "web3" && <Web3Panel />}</section></main>;
 }
