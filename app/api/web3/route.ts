@@ -1,22 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { assertConfigured, getClientForProvider, getModelForProvider } from "@/lib/deepseek";
+
+const profileSchema = z.object({
+  name: z.string().min(1).max(80).default("Assistant"),
+  instruction: z.string().max(2000).default("Be helpful and engaging."),
+  behavior: z.string().max(2000).default("Keep a friendly tone."),
+  soulMarkdown: z.string().max(4000).default("# Soul\n- calm\n- focused\n- gentle"),
+  rules: z.array(z.string()).max(20).default([]),
+  imageUrl: z.string().url().optional().or(z.literal("")),
+  speechStyle: z.string().max(200).optional(),
+  backstory: z.string().max(2000).optional(),
+});
 
 export const runtime = "nodejs";
-const inputSchema = z.object({ rpcUrl: z.string().url().refine((value) => value.startsWith("https://"), "HTTPS RPC required"), address: z.string().regex(/^0x[a-fA-F0-9]{40}$/) });
 
 export async function POST(request: NextRequest) {
   try {
-    const { rpcUrl, address } = inputSchema.parse(await request.json());
-    const rpc = async (method: string, params: string[]) => {
-      const response = await fetch(rpcUrl, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }), cache: "no-store" });
-      const payload = await response.json();
-      if (payload.error) throw new Error(payload.error.message ?? "RPC error");
-      return payload.result as string;
-    };
-    const [chainId, balance] = await Promise.all([rpc("eth_chainId", []), rpc("eth_getBalance", [address, "latest"])]);
-    const wei = BigInt(balance);
-    const whole = wei / 1000000000000000000n;
-    const fraction = (wei % 1000000000000000000n).toString().padStart(18, "0").slice(0, 6);
-    return NextResponse.json({ chainId: Number.parseInt(chainId, 16), balanceEth: `${whole}.${fraction}` });
-  } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request" }, { status: 400 }); }
+    const body = await request.json();
+    const profile = profileSchema.parse(body.character ?? {});
+    const provider = String(body.provider ?? "deepseek");
+    const model = getModelForProvider(provider, body.model);
+    const client = getClientForProvider(provider);
+    assertConfigured(provider);
+
+    const prompt = `You are ${profile.name}. Control every response with this persona.\n\nINSTRUCTION:\n${profile.instruction}\n\nBEHAVIOR:\n${profile.behavior}\n\nSOULMD:\n${profile.soulMarkdown}\n\nRULES:\n${profile.rules.join("\n") || "No extra rules"}`;
+
+    const messages = Array.isArray(body.messages) ? body.messages : [{ role: "user", content: "Introduce yourself." }];
+    const completion = await client.chat.completions.create({
+      model,
+      messages: [{ role: "system", content: prompt }, ...messages],
+      temperature: body.temperature ?? 0.9,
+    });
+
+    const reply = completion.choices[0]?.message?.content ?? "Profile loaded.";
+    return NextResponse.json({ reply, provider, model });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request" }, { status: 400 });
+  }
 }

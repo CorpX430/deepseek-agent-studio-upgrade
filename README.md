@@ -1,33 +1,77 @@
-# deepseek-agent-studio-upgrade
+# DeepSeek Agent Studio Upgrade
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+This project is a Next.js app for conversation, character design, agent tooling, and wallet experiments.
 
-## Built with v0
+## Features
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+- DeepSeek chat with configurable provider selection
+- OpenRouter support for alternative LLM routing
+- character creator with instruction box, behavior box, image URL, and SoulMD
+- cloud persistence via Supabase (free tier)
+- Web3 read-only wallet inspection and transaction signing helper
+- ready for free hosting on Vercel or Railway
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_SSHQfhxsWCqlKMmQNuWCt2CQL7H2)
+## Setup
 
-## Getting Started
+1. Install dependencies:
 
-First, run the development server:
+```bash
+npm install
+# or
+pnpm install
+```
+
+2. Copy environment variables:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Configure your keys:
+
+- `DEEPSEEK_API_KEY` for DeepSeek models
+- `OPENROUTER_API_KEY` for OpenRouter routing
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for the free cloud database
+- `WALLET_PRIVATE_KEY` only if you want server-side signing helpers
+
+4. Run locally:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Supabase cloud database
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a free project at https://supabase.com and create a table named `characters` with the following columns:
 
-## Learn More
+```sql
+create table public.characters (
+  id text primary key,
+  name text,
+  instruction text,
+  behavior text,
+  image_url text,
+  soul_markdown text,
+  speech_style text,
+  backstory text,
+  rules jsonb,
+  updated_at timestamptz default now()
+);
+```
 
-To learn more, take a look at the following resources:
+The app automatically falls back to browser localStorage if no Supabase config is present.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+## Free deployment
+
+Recommended: deploy to Vercel.
+
+1. Push to GitHub
+2. Import the repo into Vercel
+3. Add the same environment variables in Project Settings > Environment Variables
+4. Use a custom domain or free subdomain from Vercel
+5. Deploy
+
+## Notes
+
+- For the transaction signing flow, use a burner wallet and testnet RPC endpoints only.
+- OpenRouter allows you to route requests through many models, including a configurable uncensored or less-filtered model profile if your account provider allows it.
