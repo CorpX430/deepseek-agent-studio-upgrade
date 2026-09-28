@@ -34,6 +34,8 @@ The Web3 panel targets BNB Smart Chain by default (`chainId 56`, native asset `B
 
 Cloudflare does not provide a universal public BNB RPC endpoint. If you create an authenticated Cloudflare Web3 Gateway or Worker proxy for BSC, set its HTTPS URL as `NEXT_PUBLIC_BNB_RPC_URL` in Render. Do not put a Cloudflare token in the browser bundle; keep gateway authentication at the Worker/proxy layer. The endpoint must return BNB Smart Chain chain ID `56`.
 
+The repository includes `cloudflare/bnb-rpc-worker.js`, a locked-down proxy that forwards only read/estimation JSON-RPC methods to BSC. Deploy it as the `deepseek-bnb-rpc` Worker with a Cloudflare token that has **Account > Workers Scripts > Edit** permission, then set its HTTPS Worker URL as `NEXT_PUBLIC_BNB_RPC_URL` in Render. The currently connected Cloudflare token was rejected as invalid, so the app remains on the verified Binance public RPC until a valid deployment token is connected.
+
 ## 5. Verification checklist
 
 - Apply the migration before testing signed-in history.
