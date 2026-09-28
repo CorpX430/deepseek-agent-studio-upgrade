@@ -1,0 +1,5 @@
+name = "deepseek-bnb-rpc"
+main = "bnb-rpc-worker.js"
+compatibility_date = "2026-09-28"
+account_id = "ed1f87ad630ff1ccc0885bff0861483a"
+workers_dev = true
