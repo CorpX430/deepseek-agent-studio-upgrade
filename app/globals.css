@@ -357,6 +357,57 @@ button:disabled {
 .upload-button input {
   display: none;
 }
+.chat-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  padding: 0 18px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.model-picker {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.model-picker select {
+  min-height: 40px;
+  min-width: 180px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+}
+.chat-tools .upload-button {
+  margin: 0;
+  padding: 11px 14px;
+  border-color: var(--line);
+  color: var(--text);
+}
+.file-chip {
+  min-height: 40px;
+  max-width: min(100%, 260px);
+  overflow: hidden;
+  padding: 0 12px;
+  border: 1px solid #6d7cff66;
+  border-radius: 10px;
+  background: #6d7cff14;
+  color: var(--blue);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.upload-notice {
+  margin: 0;
+  padding: 0 18px 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
 .character-chat {
   padding-top: 32px;
 }

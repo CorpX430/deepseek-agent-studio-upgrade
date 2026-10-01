@@ -7,7 +7,9 @@ A mobile-first, single-workspace web app for DeepSeek chat, tool-using agents, c
 ## Features
 
 - Streaming DeepSeek chat with a collapsible thinking trace.
+- Flash and V4 Pro model selector with text/code/Markdown file attachments up to 120 KB.
 - Agent mode with an allowlisted tool loop and visible tool events.
+- DeepSeek Terminal mode backed by isolated E2B sandboxes.
 - Character mode backed by the included Aria profile.
 - Read-only BNB Smart Chain balance lookup; no wallet signing or transaction submission.
 - Dark, responsive UI optimized for touch devices.
@@ -48,6 +50,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - `tests/` — deterministic repository and integration smoke tests
 - `docs/` — setup and architecture documentation
 - `.manus/commands/` — reusable `/deploy`, `/test`, `/format`, and `/env-setup` workflows
+- `skills/deepseek-terminal/` — reusable terminal-agent operating rules
 - `.githooks/` — local pre-commit validation
 
 See [docs/SETUP.md](docs/SETUP.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and [AGENTS.md](AGENTS.md).
@@ -64,7 +67,7 @@ References:
 
 ## Deployment
 
-Render is the recommended default and is configured in `render.yaml`. The free service auto-deploys `main`. Set `DEEPSEEK_API_KEY` in the host's encrypted environment settings before using chat, agent, or character routes. Vercel or another Node-compatible Next.js host also works.
+Render is the recommended default and is configured in `render.yaml`. The free service auto-deploys `main`. Set `DEEPSEEK_API_KEY` in the host's encrypted environment settings before using chat, terminal, or character routes.
 
 ## License
 

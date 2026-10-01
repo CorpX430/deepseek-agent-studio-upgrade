@@ -10,4 +10,4 @@ Set `NEXT_PUBLIC_BNB_RPC_URL` in Render only to a verified HTTPS BNB RPC endpoin
 
 ## Neon
 
-The Neon connector is enabled, but the connected Neon organization is Vercel-managed and currently has no projects. Creating a project through this connector is blocked by the organization policy. Once a user-owned Neon organization/project is connected, set its encrypted `DATABASE_URL` in the deployment environment before wiring persistence to it.
+The Neon connector is enabled, but the connected organization is provider-managed and currently has no projects. Creating a project through this connector is blocked by the organization policy. Once a user-owned Neon organization/project is connected, set its encrypted `DATABASE_URL` in the deployment environment before wiring persistence to it.

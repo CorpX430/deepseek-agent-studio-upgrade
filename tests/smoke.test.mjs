@@ -54,3 +54,15 @@ test("BNB integration verifies chain 56 before wallet setup", async () => {
   assert.match(panel, /verifyRpc/);
   assert.match(panel, /eth_sendTransaction/);
 });
+
+test("chat exposes model selection, safe file upload, and terminal skill", async () => {
+  const chat = await text("components/ChatPanel.tsx");
+  const terminal = await text("components/AgentPanel.tsx");
+  const skill = await text("skills/deepseek-terminal/SKILL.md");
+  const packageJson = await text("package.json");
+  assert.match(chat, /deepseek-v4-pro/);
+  assert.match(chat, /FILE_LIMIT/);
+  assert.match(terminal, /\/api\/agent/);
+  assert.match(skill, /run_terminal_command/);
+  assert.doesNotMatch(packageJson, /@vercel\/analytics/);
+});
