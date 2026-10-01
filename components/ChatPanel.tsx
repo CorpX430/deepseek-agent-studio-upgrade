@@ -10,16 +10,16 @@ interface Msg {
   reasoning?: string;
 }
 
-const FILE_LIMIT = 120_000;
+const FILE_LIMIT = 16_000;
 const MODEL_OPTIONS = [
-  { value: "deepseek-flash", label: "V4.1 Flash · fast" },
-  { value: "deepseek-v4-pro", label: "V4 Pro · deep" },
+  { value: "deepseek-v4-pro", label: "V4 Pro · confirmed" },
+  { value: "deepseek-flash", label: "V4.1 Flash · experimental" },
 ];
 
 export default function ChatPanel() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
-  const [model, setModel] = useState("deepseek-flash");
+  const [model, setModel] = useState("deepseek-v4-pro");
   const [attachment, setAttachment] = useState<{
     name: string;
     content: string;
@@ -37,7 +37,7 @@ export default function ChatPanel() {
     event.target.value = "";
     if (!file) return;
     if (file.size > FILE_LIMIT) {
-      setNotice("Files are limited to 120 KB for safe prompt context.");
+      setNotice("Files are limited to 16 KB for safe prompt context.");
       return;
     }
     try {

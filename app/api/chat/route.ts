@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       reasoning_effort: "high",
       extra_body: { thinking: { type: "enabled" } },
       stream: true,
+      signal: AbortSignal.timeout(45000),
     } as any)) as unknown as AsyncIterable<any>;
     const encoder = new TextEncoder();
     const response = new ReadableStream({

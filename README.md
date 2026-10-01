@@ -7,7 +7,7 @@ A mobile-first, single-workspace web app for DeepSeek chat, tool-using agents, c
 ## Features
 
 - Streaming DeepSeek chat with a collapsible thinking trace.
-- Flash and V4 Pro model selector with text/code/Markdown file attachments up to 120 KB.
+- Flash and V4 Pro model selector with text/code/Markdown file attachments up to 16 KB.
 - Agent mode with an allowlisted tool loop and visible tool events.
 - DeepSeek Terminal mode backed by isolated E2B sandboxes.
 - Character mode backed by the included Aria profile.

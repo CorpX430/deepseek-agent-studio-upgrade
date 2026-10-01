@@ -2,6 +2,8 @@
 
 Use this skill when the user asks DeepSeek Agent Studio to build, inspect, or verify code.
 
+The deployed terminal route uses the confirmed `deepseek-v4-pro` model and a 45-second provider timeout.
+
 ## Operating rules
 
 1. State the intended change briefly before using tools.

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         try {
           const conversation: any[] = [{ role: "system", content: SYSTEM }, ...messages];
           for (let iteration = 0; iteration < 12; iteration++) {
-            const stream = await deepseek.chat.completions.create({ model: MODELS.flash, messages: conversation, tools: agentTools, tool_choice: "auto", reasoning_effort: "high", extra_body: { thinking: { type: "enabled" } }, stream: true } as any) as unknown as AsyncIterable<any>;
+            const stream = await deepseek.chat.completions.create({ model: MODELS.pro, messages: conversation, tools: agentTools, tool_choice: "auto", reasoning_effort: "high", extra_body: { thinking: { type: "enabled" } }, stream: true, signal: AbortSignal.timeout(45000) } as any) as unknown as AsyncIterable<any>;
             let content = "";
             let reasoningContent = "";
             const calls: any[] = [];
