@@ -44,3 +44,13 @@ test("environment template does not contain a credential", async () => {
   assert.match(env, /DEEPSEEK_API_KEY=/);
   assert.doesNotMatch(env, /DEEPSEEK_API_KEY=.+/);
 });
+
+test("BNB integration verifies chain 56 before wallet setup", async () => {
+  const route = await text("app/api/web3/route.ts");
+  const panel = await text("components/Web3Panel.tsx");
+  assert.match(route, /numericChainId !== 56/);
+  assert.match(route, /credential-free HTTPS/);
+  assert.match(panel, /wallet_addEthereumChain/);
+  assert.match(panel, /verifyRpc/);
+  assert.match(panel, /eth_sendTransaction/);
+});
