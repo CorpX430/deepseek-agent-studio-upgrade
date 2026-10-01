@@ -11,7 +11,8 @@ A mobile-first, single-workspace web app for DeepSeek chat, tool-using agents, c
 - Character mode backed by the included Aria profile.
 - Read-only BNB Smart Chain balance lookup; no wallet signing or transaction submission.
 - Dark, responsive UI optimized for touch devices.
-- CI workflow for type checking, tests, and production builds.
+- Persistent dark/light mode toggle with accessible focus states.
+- Render free-plan auto-deploy from `main`, plus reusable local validation commands.
 
 ## Quick start
 
@@ -26,13 +27,16 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Commands
 
-| Command | Purpose |
-| --- | --- |
-| `pnpm dev` | Start local development |
-| `pnpm check` | Run TypeScript and smoke tests |
-| `pnpm build` | Create the production build |
-| `pnpm start` | Serve the production build |
-| `pnpm format` | Format supported files with Prettier |
+| Command              | Purpose                                   |
+| -------------------- | ----------------------------------------- |
+| `pnpm dev`           | Start local development                   |
+| `pnpm check`         | Run TypeScript and smoke tests            |
+| `pnpm build`         | Create the production build               |
+| `pnpm start`         | Serve the production build                |
+| `pnpm format`        | Format supported files with Prettier      |
+| `pnpm deploy`        | Check, build, diff-check, and push `main` |
+| `pnpm env:setup`     | Create `.env.local` from the template     |
+| `pnpm hooks:install` | Enable the pre-commit test hook           |
 
 ## Structure
 
@@ -43,7 +47,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - `config/` — configuration documentation, never secrets
 - `tests/` — deterministic repository and integration smoke tests
 - `docs/` — setup and architecture documentation
-- `.github/workflows/` — CI/CD checks
+- `.manus/commands/` — reusable `/deploy`, `/test`, `/format`, and `/env-setup` workflows
+- `.githooks/` — local pre-commit validation
 
 See [docs/SETUP.md](docs/SETUP.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), and [AGENTS.md](AGENTS.md).
 
@@ -59,7 +64,7 @@ References:
 
 ## Deployment
 
-Render is the recommended default and is configured in `render.yaml`. Set `DEEPSEEK_API_KEY` in the host's encrypted environment settings, then deploy the `main` branch. Vercel or another Node-compatible Next.js host also works.
+Render is the recommended default and is configured in `render.yaml`. The free service auto-deploys `main`. Set `DEEPSEEK_API_KEY` in the host's encrypted environment settings before using chat, agent, or character routes. Vercel or another Node-compatible Next.js host also works.
 
 ## License
 

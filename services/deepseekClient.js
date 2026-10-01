@@ -2,7 +2,13 @@
  * Browser-safe client for the server-side DeepSeek streaming routes.
  * The API key never reaches this module or the browser.
  */
-export async function streamDeepSeek({ endpoint = "/api/chat", messages, model, signal, onEvent }) {
+export async function streamDeepSeek({
+  endpoint = "/api/chat",
+  messages,
+  model,
+  signal,
+  onEvent,
+}) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

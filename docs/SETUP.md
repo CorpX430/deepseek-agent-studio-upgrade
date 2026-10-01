@@ -21,9 +21,12 @@ Open `http://localhost:3000`. The key is read only by the Next.js server and is 
 
 ```bash
 pnpm check       # TypeScript plus deterministic smoke tests
-pnpm build       # Production build without requiring a live API key
+pnpm build       # Create the production build without requiring a live API key
 pnpm start       # Serve the production build
+pnpm hooks:install # Enable the pre-commit check hook
 ```
+
+See [WORKFLOW.md](WORKFLOW.md) for the `/deploy`, `/test`, `/format`, and `/env-setup` conventions.
 
 ## Deployment
 

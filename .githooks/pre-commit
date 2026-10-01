@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+printf '%s\n' 'Running DeepSeek Agent Studio checks before commit...'
+pnpm check

@@ -14,9 +14,22 @@ test("repository includes the documented production structure", async () => {
     exists("config"),
     exists("tests"),
     exists("docs"),
-    exists(".github/workflows/ci.yml"),
+    exists("render.yaml"),
     exists("services/deepseekClient.js"),
+    exists("components/ThemeToggle.tsx"),
+    exists(".githooks/pre-commit"),
+    exists("scripts/deploy.sh"),
+    exists(".manus/commands/deploy.md"),
   ]);
+});
+
+test("home screen exposes theme and streaming chat behavior", async () => {
+  const page = await text("app/page.tsx");
+  const chat = await text("components/ChatPanel.tsx");
+  const theme = await text("components/ThemeToggle.tsx");
+  assert.match(page, /ThemeToggle/);
+  assert.match(chat, /streamDeepSeek/);
+  assert.match(theme, /localStorage/);
 });
 
 test("DeepSeek integration uses current model identifiers and never hardcodes a key", async () => {

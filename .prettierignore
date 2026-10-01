@@ -1,0 +1,18 @@
+# Existing legacy modules retained as-is
+PRODUCTION.md
+app/api/
+app/layout.tsx
+characters/
+cloudflare/
+components/AgentPanel.tsx
+components/CharacterPanel.tsx
+components/MessageList.tsx
+components/ModeSwitcher.tsx
+components/Web3Panel.tsx
+components/ui/
+lib/
+next.config.mjs
+pnpm-lock.yaml
+pnpm-workspace.yaml
+postcss.config.mjs
+proxy.ts

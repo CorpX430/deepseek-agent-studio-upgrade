@@ -1,7 +1,84 @@
 "use client";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import MessageList from "./MessageList";
-interface Msg { role: "user" | "assistant"; content: string; reasoning?: string }
-export default function ChatPanel() { const [messages, setMessages] = useState<Msg[]>([]); const [input, setInput] = useState(""); const [busy, setBusy] = useState(false); const bottom = useRef<HTMLDivElement>(null); useEffect(() => { bottom.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
- async function send(event?: FormEvent) { event?.preventDefault(); if (!input.trim() || busy) return; const next = [...messages, { role: "user" as const, content: input.trim() }]; setMessages([...next, { role: "assistant", content: "" }]); setInput(""); setBusy(true); try { const res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: next }) }); if (!res.ok || !res.body) throw new Error("Unable to reach DeepSeek"); const reader = res.body.getReader(); const decoder = new TextDecoder(); let buffer = ""; let answer = ""; let reasoning = ""; while (true) { const { done, value } = await reader.read(); if (done) break; buffer += decoder.decode(value, { stream: true }); const lines = buffer.split("\n\n"); buffer = lines.pop() || ""; for (const line of lines) { if (!line.startsWith("data: ")) continue; const event = JSON.parse(line.slice(6)); if (event.type === "content") answer += event.content; if (event.type === "reasoning") reasoning += event.content; if (event.type === "error") throw new Error(event.error); setMessages([...next, { role: "assistant", content: answer, reasoning: reasoning || undefined }]); } } } catch (error) { setMessages([...next, { role: "assistant", content: `Error: ${error instanceof Error ? error.message : String(error)}` }]); } finally { setBusy(false); } }
- return <div className="panel"><div className="panel-intro"><span className="eyebrow">GENERAL CHAT</span><h2>What are you working on?</h2><p>Ask DeepSeek to explain, brainstorm, or help you make progress.</p></div><div className="scroll-area"><MessageList messages={messages} /><div ref={bottom} /></div><form className="composer" onSubmit={send}><input value={input} onChange={e => setInput(e.target.value)} placeholder="Ask anything…" aria-label="Message" disabled={busy} /><button type="submit" disabled={busy || !input.trim()}>{busy ? "Thinking" : "Send"}</button></form></div>; }
+import { streamDeepSeek } from "@/services/deepseekClient.js";
+interface Msg {
+  role: "user" | "assistant";
+  content: string;
+  reasoning?: string;
+}
+export default function ChatPanel() {
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [input, setInput] = useState("");
+  const [busy, setBusy] = useState(false);
+  const bottom = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    bottom.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  async function send(event?: FormEvent) {
+    event?.preventDefault();
+    if (!input.trim() || busy) return;
+    const next = [
+      ...messages,
+      { role: "user" as const, content: input.trim() },
+    ];
+    setMessages([...next, { role: "assistant", content: "" }]);
+    setInput("");
+    setBusy(true);
+    try {
+      let answer = "";
+      let reasoning = "";
+      await streamDeepSeek({
+        messages: next,
+        onEvent: (event) => {
+          if (event.type === "content") answer += event.content;
+          if (event.type === "reasoning") reasoning += event.content;
+          if (event.type === "error") throw new Error(event.error);
+          setMessages([
+            ...next,
+            {
+              role: "assistant",
+              content: answer,
+              reasoning: reasoning || undefined,
+            },
+          ]);
+        },
+      });
+    } catch (error) {
+      setMessages([
+        ...next,
+        {
+          role: "assistant",
+          content: `Error: ${error instanceof Error ? error.message : String(error)}`,
+        },
+      ]);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="panel">
+      <div className="panel-intro">
+        <span className="eyebrow">GENERAL CHAT</span>
+        <h2>What are you working on?</h2>
+        <p>Ask DeepSeek to explain, brainstorm, or help you make progress.</p>
+      </div>
+      <div className="scroll-area">
+        <MessageList messages={messages} />
+        <div ref={bottom} />
+      </div>
+      <form className="composer" onSubmit={send}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask anything…"
+          aria-label="Message"
+          disabled={busy}
+        />
+        <button type="submit" disabled={busy || !input.trim()}>
+          {busy ? "Thinking" : "Send"}
+        </button>
+      </form>
+    </div>
+  );
+}
