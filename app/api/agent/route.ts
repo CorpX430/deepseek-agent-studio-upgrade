@@ -19,12 +19,15 @@ export async function POST(request: NextRequest) {
         try {
           const conversation: any[] = [{ role: "system", content: SYSTEM }, ...messages];
           for (let iteration = 0; iteration < 12; iteration++) {
-            const stream = await deepseek.chat.completions.create({ model: MODELS.pro, messages: conversation, tools: agentTools, tool_choice: "auto", temperature: 0.2, stream: true });
+            const stream = await deepseek.chat.completions.create({ model: MODELS.flash, messages: conversation, tools: agentTools, tool_choice: "auto", reasoning_effort: "high", extra_body: { thinking: { type: "enabled" } }, stream: true } as any) as unknown as AsyncIterable<any>;
             let content = "";
+            let reasoningContent = "";
             const calls: any[] = [];
             for await (const chunk of stream) {
               const delta = chunk.choices[0]?.delta;
               if (delta?.content) { content += delta.content; send({ type: "content", content: delta.content }); }
+              const reasoning = (delta as typeof delta & { reasoning_content?: string })?.reasoning_content;
+              if (reasoning) { reasoningContent += reasoning; send({ type: "reasoning", content: reasoning }); }
               for (const toolCall of delta?.tool_calls ?? []) {
                 const index = toolCall.index ?? calls.length;
                 calls[index] ??= { id: toolCall.id ?? `call_${index}`, type: "function", function: { name: "", arguments: "" } };
@@ -34,7 +37,7 @@ export async function POST(request: NextRequest) {
               }
             }
             if (!calls.length) { send({ type: "done" }); break; }
-            conversation.push({ role: "assistant", content: content || null, tool_calls: calls });
+            conversation.push({ role: "assistant", content: content || null, reasoning_content: reasoningContent || undefined, tool_calls: calls });
             for (const call of calls) {
               send({ type: "tool_call", id: call.id, name: call.function.name, arguments: call.function.arguments });
               let result: string;

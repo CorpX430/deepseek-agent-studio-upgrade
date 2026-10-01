@@ -3,19 +3,19 @@ import OpenAI from "openai";
 if (!process.env.DEEPSEEK_API_KEY) console.warn("DEEPSEEK_API_KEY is not configured.");
 
 export const deepseek = new OpenAI({
-  // Route modules are evaluated during `next build`; requests still fail closed below.
   apiKey: process.env.DEEPSEEK_API_KEY ?? "build-placeholder",
-  baseURL: "https://api.deepseek.com",
+  baseURL: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
 });
 
+/** Current official API identifiers. deepseek-flash maps to DeepSeek-V4.1-Flash. */
 export const MODELS = {
-  flash: "deepseek-chat",
-  pro: "deepseek-reasoner",
+  flash: "deepseek-flash",
+  pro: "deepseek-v4-pro",
 } as const;
 
 export function assertConfigured() {
   if (!process.env.DEEPSEEK_API_KEY) {
-    throw new Error("DEEPSEEK_API_KEY is not configured.");
+    throw new Error("DEEPSEEK_API_KEY is not configured. Copy .env.example to .env.local and add your key.");
   }
 }
 
@@ -32,16 +32,12 @@ export function sseEvent(value: unknown) {
 }
 
 export function safeMessages(value: unknown) {
-  if (!Array.isArray(value)) throw new Error("messages must be an array");
+  if (!Array.isArray(value) || value.length === 0) throw new Error("messages must be a non-empty array");
   return value.slice(-40).map((message) => {
     if (!message || typeof message !== "object") throw new Error("Invalid message");
     const item = message as { role?: string; content?: string };
-    if (!["user", "assistant", "system"].includes(item.role ?? "")) {
-      throw new Error("Invalid message role");
-    }
-    if (typeof item.content !== "string" || item.content.length > 20000) {
-      throw new Error("Invalid message content");
-    }
+    if (!["user", "assistant", "system"].includes(item.role ?? "")) throw new Error("Invalid message role");
+    if (typeof item.content !== "string" || item.content.length > 20000) throw new Error("Invalid message content");
     return { role: item.role as "user" | "assistant" | "system", content: item.content };
   });
 }

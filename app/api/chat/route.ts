@@ -10,7 +10,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const messages = safeMessages(body.messages);
     const model = body.model === MODELS.pro ? MODELS.pro : MODELS.flash;
-    const stream = await deepseek.chat.completions.create({ model, messages, temperature: 0.7, stream: true });
+    const stream = await deepseek.chat.completions.create({
+      model,
+      messages,
+      reasoning_effort: "high",
+      extra_body: { thinking: { type: "enabled" } },
+      stream: true,
+    } as any) as unknown as AsyncIterable<any>;
     const encoder = new TextEncoder();
     const response = new ReadableStream({
       async start(controller) {
